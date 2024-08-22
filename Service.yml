@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kgaurav8026
+  labels:
+    app: kgaurav8026
+spec:
+  ports:
+    - port: 8080
+      targetPort: 80
+      nodePort: 31200
+  selector:
+    app: kgaurav8026
+  type: LoadBalancer
