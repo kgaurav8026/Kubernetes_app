@@ -4,10 +4,11 @@
     - name: Delete old deployment
       ansible.builtin.command:
         cmd: kubectl delete -f /home/ubuntu/Deployment.yml
-      ignore_errors: true # Add this line to continue despite errors
+      ignore_errors: true
     - name: Delete old service
       ansible.builtin.command:
         cmd: kubectl delete -f /home/ubuntu/Service.yml
+      ignore_errors: true
     - name: Create new deployment
       ansible.builtin.command:
         cmd: kubectl apply -f /home/ubuntu/Deployment.yml
