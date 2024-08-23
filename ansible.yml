@@ -1,17 +1,30 @@
 - hosts: all
   become: true
+  vars:
+    kubeconfig_path: /home/ubuntu/.kube/config
+
   tasks:
-    - name: Delete old deployment
-      ansible.builtin.command:
-        cmd: kubectl delete -f /home/ubuntu/Deployment.yml
-      ignore_errors: true
-    - name: Delete old service
-      ansible.builtin.command:
-        cmd: kubectl delete -f /home/ubuntu/Service.yml
-      ignore_errors: true
+    - name: Ensure Minikube is running
+      command: minikube status
+      register: minikube_status
+      ignore_errors: yes
+
+    - name: Start Minikube if not running
+      command: minikube start
+      when: minikube_status.rc != 0
+
+    - name: Update kubectl context
+      command: minikube update-context
+
+    - name: Wait for Minikube to be ready
+      command: kubectl --kubeconfig={{ kubeconfig_path }} get nodes
+      register: result
+      until: result.rc == 0
+      retries: 6
+      delay: 10
+
     - name: Create new deployment
-      ansible.builtin.command:
-        cmd: kubectl apply -f /home/ubuntu/Deployment.yml
+      command: kubectl --kubeconfig={{ kubeconfig_path }} apply -f /home/ubuntu/Deployment.yml
+
     - name: Create new service
-      ansible.builtin.command:
-        cmd: kubectl apply -f /home/ubuntu/Service.yml
+      command: kubectl --kubeconfig={{ kubeconfig_path }} apply -f /home/ubuntu/Service.yml
